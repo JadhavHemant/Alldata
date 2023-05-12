@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<script src="{% static '/js/jquery.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function(){
+            GetCompanyData()  
+            $("#btnadd").click(function(){
+                AddCompany();
+            })
+             
+            $("#btnupdate").click(function(){
+                UpdateCompany();
+            })
+            $("#txtcid").change(function(){
+                FetchCompany();
+            })
+        })
+
+        function GetCompanyData(){
+            $.ajax({
+                url:'/company',
+                method:'get',
+                contentType:'application/json',
+                success:function(resp){
+                    // console.log(resp);
+                $("#tbldata").empty();
+                $.each(resp,function(i,d){
+                    $("#tbldata").append("<tr><td>"+d.id+"</td><td>"+d.companyName+"</td><td>"+d.totalEmployees+"</td><td>"+d.address+"</td><td>"+d.emailAddress+"</td><td><input type='button' value='View' onclick='ViewCompany("+d.id+")' /></td></tr>");
+
+                })
+                }
+            })
+        }
+        function ViewCompany(cid){
+
+            $.ajax({
+                url:'/company/'+cid,
+                method:'get',
+                contentType:'application/json',
+                success:function(resp){
+                    var d=resp;
+                    console.log(d)
+                    $("#txtcid").val(d.id)
+                    $("#txtcname").val(d.companyName)
+                    $("#txtotalemployees").val(d.totalEmployees)
+                    $("#txtaddress").val(d.address)
+                    $("#txtemail").val(d.emailAddress)
+                }
+            })
+        }
+
+
+        function FetchCompany(){
+            var cid=$("#txtcid").val()
+            $.ajax({
+                url:'/company/'+cid,
+                method:'get',
+                contentType:'application/json',
+                success:function(resp){
+                    // console.log(resp);
+                $("#tbldata").empty();
+                var d=resp;
+                $("#tbldata").append("<tr><td>"+d.id+"</td><td>"+d.companyName+"</td><td>"+d.totalEmployees+"</td><td>"+d.address+"</td><td>"+d.emailAddress+"</td><td><input type='button' value='View' onclick='ViewCompany("+d.id+")' /></td></tr>");
+            }
+            })
+        }
+
+        function  AddCompany(){
+            var st={
+         
+        "companyName":$("#txtcname").val(),
+        "totalEmployees": $("#txtotalemployees").val(),
+        "address": $("#txtaddress").val(),
+        "emailAddress": $("#txtemail").val()
+    }
+            $.ajax({
+                url:'/company',
+                method:'post',
+                data:JSON.stringify(st),
+                contentType:'application/json',
+                success:function(resp){
+                    console.log(resp);
+                    GetCompanyData();
+                }
+            })
+        }
+        function  UpdateCompany(){
+            var st={
+         
+        "companyName":$("#txtcname").val(),
+        "totalEmployees": $("#txtotalemployees").val(),
+        "address": $("#txtaddress").val(),
+        "emailAddress": $("#txtemail").val()
+    }
+            $.ajax({
+                url:'/company/'+$("#txtcid").val(),
+                method:'put',
+                data:JSON.stringify(st),
+                contentType:'application/json',
+                success:function(resp){
+                    console.log(resp);
+                    GetCompanyData();
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>Company Id</td>
+            <td><input type="text" id="txtcid"></td>
+        </tr>
+        <tr>
+            <td>Company Name</td>
+            <td><input type="text" id="txtcname"></td>
+        </tr>
+        <tr>
+            <td>Total Employees</td>
+            <td><input type="text" id="txtotalemployees"></td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td><input type="text" id="txtaddress"></td>
+        </tr>
+        <tr>
+            <td>Email Address</td>
+            <td><input type="text" id="txtemail"></td>
+        </tr>
+        <tr>
+
+            <td colspan="2">
+                <input type="button" value="Cusmit" id="btnadd">
+                &nbsp;
+                <input type="button" value="Update" id="btnupdate">
+
+            </td>
+        </tr>
+
+    </table>
+
+    
+<hr/>
+Enter Id <input type="text" id="txtcid" >
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Company Id</th>
+                <th>Company Name</th>
+                <th>Total Employees</th>
+                <th>Comapny Address</th>
+                <th>Email Address</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody id="tbldata"></tbody>
+    </table>
+</body>
+</html>
